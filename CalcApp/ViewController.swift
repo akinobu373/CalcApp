@@ -19,42 +19,60 @@ class ViewController: UIViewController, UITableViewDelegate,UITableViewDataSourc
     @IBOutlet weak var taxController: UISegmentedControl!
     @IBOutlet weak var costField: UITextField!
     
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         itemTableView.delegate = self
         itemTableView.dataSource = self
-        
         costsArray.removeAll()
+
+        costField.addTarget(self, action: #selector(costFieldChange(sender:)), for: .editingChanged)
     }
     
-    @IBAction func taxButton(_ sender: Any) {
+    @objc func costFieldChange(sender: UITextField) {
+        if taxController.selectedSegmentIndex == 0 {
+            calc(tax: 1.1)
+        } else {
+            calc(tax: 1.08)
+        }
+        
+        resultNum.text = addTaxCostString
+    }
+    
+    @IBAction func taxButton(_ sender:Any) {
         if taxController.selectedSegmentIndex == 0 {
             calc(tax: 1.1)
         } else {
             calc(tax: 1.08)
         }
     }
+  
     
     @IBAction func addButton(_ sender: Any) {
-        costsArray.append(contentsOf: [addTaxCost])
-        print(costsArray)
-        UserDefaults.standard.set(costsArray, forKey: "item")
-        
-        costField.text = ""
-        resultNum.text = ""
-        
-        self.itemTableView.reloadData()
+        if costField.text != "" {
+            costsArray.append(contentsOf: [addTaxCost])
+            print(costsArray)
+            UserDefaults.standard.set(costsArray, forKey: "item")
+            
+            costField.text = ""
+            resultNum.text = ""
+            
+            self.itemTableView.reloadData()
+        }else{
+            print("エラー")
+        }
     }
     
     func calc(tax:Double) {
-        cost = Double(costField.text!)!
+        cost = Double(costField.text!) ?? 0.0
         addTaxCost = cost * Double(tax)
         print(addTaxCost)
         
         addTaxCostString = String(format: "%.0f", addTaxCost)
         resultNum.text = addTaxCostString
+        
     }
-    
     
     func numberOfSections(in tableView: UITableView) -> Int {
         return 1
@@ -85,4 +103,3 @@ class ViewController: UIViewController, UITableViewDelegate,UITableViewDataSourc
     }
     
 }
-
